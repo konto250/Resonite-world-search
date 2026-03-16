@@ -106,7 +106,7 @@ async function doSearch(offset = 0) {
 
 function getMmcTag(tags) {
     if (!tags) return '';
-    const found = tags.find(t => /^mmc\d+$/i.test(t));
+    const found = tags.find(t => /^mmc\d{2}$/i.test(t));
     return found ? found.toLowerCase() : '';
 }
 
