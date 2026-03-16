@@ -9,7 +9,11 @@ module.exports = async (req, res) => {
             headers: { 'Content-Type': 'application/json' },
         };
         if (req.method !== 'GET' && req.method !== 'HEAD') {
-            fetchOptions.body = JSON.stringify(req.body);
+            const body = { ...req.body };
+            if (body.count !== undefined && body.count > 25) {
+                return res.status(400).json({ error: '件数上限は25件までです。' });
+            }
+            fetchOptions.body = JSON.stringify(body);
         }
 
         const apiRes = await fetch(url, fetchOptions);
