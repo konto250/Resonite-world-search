@@ -1,0 +1,159 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background: #1a1a2e;
+    color: #e0e0e0;
+    min-height: 100vh;
+    padding: 24px;
+}
+
+h1 {
+    text-align: center;
+    color: #00d4ff;
+    margin-bottom: 24px;
+}
+
+.search-box {
+    max-width: 700px;
+    margin: 0 auto 24px;
+    background: #16213e;
+    padding: 20px;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+label {
+    font-size: 14px;
+    min-width: 80px;
+}
+
+input,
+select {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #333;
+    border-radius: 6px;
+    background: #0f3460;
+    color: #e0e0e0;
+    font-size: 14px;
+}
+
+input::placeholder {
+    color: #888;
+}
+
+button {
+    padding: 10px 24px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.btn-search {
+    background: #00d4ff;
+    color: #1a1a2e;
+}
+
+.btn-search:hover {
+    background: #00b8d9;
+}
+
+.btn-search:disabled {
+    background: #555;
+    cursor: not-allowed;
+}
+
+.btn-csv {
+    background: #e94560;
+    color: #fff;
+}
+
+.btn-csv:hover {
+    background: #c73e54;
+}
+
+.status {
+    text-align: center;
+    margin-bottom: 12px;
+    font-size: 14px;
+    color: #aaa;
+}
+
+.error {
+    color: #e94560;
+}
+
+.results-header {
+    max-width: 1200px;
+    margin: 0 auto 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+table {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    border-collapse: collapse;
+    background: #16213e;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+th {
+    background: #0f3460;
+    padding: 10px 12px;
+    text-align: left;
+    font-size: 13px;
+    color: #00d4ff;
+    position: sticky;
+    top: 0;
+}
+
+td {
+    padding: 8px 12px;
+    border-bottom: 1px solid #1a1a2e;
+    font-size: 13px;
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+tr:hover td {
+    background: #1a2744;
+}
+
+a {
+    color: #00d4ff;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+.thumb {
+    width: 80px;
+    height: 45px;
+    object-fit: cover;
+    border-radius: 4px;
+    background: #333;
+}
