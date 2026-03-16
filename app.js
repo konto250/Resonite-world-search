@@ -81,7 +81,7 @@ async function doSearch(offset = 0) {
         }
 
         const data = await resp.json();
-        const newRecords = data.records || [];
+        const newRecords = (data.records || []).filter(r => r.submissions && r.submissions.length > 0);
 
         if (offset === 0) {
             currentRecords = newRecords;
