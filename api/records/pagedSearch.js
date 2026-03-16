@@ -10,8 +10,11 @@ module.exports = async (req, res) => {
         };
         if (req.method !== 'GET' && req.method !== 'HEAD') {
             const body = { ...req.body };
-            if (body.count !== undefined && body.count > 25) {
-                return res.status(400).json({ error: '件数上限は25件までです。' });
+            const count = body.count;
+            if (count !== undefined) {
+                if (!Number.isInteger(count) || count < 1 || count > 25) {
+                    return res.status(400).json({ error: 'count は1以上25以下の整数で指定してください。' });
+                }
             }
             fetchOptions.body = JSON.stringify(body);
         }
@@ -25,6 +28,6 @@ module.exports = async (req, res) => {
             .send(data);
     } catch (e) {
         console.error('Proxy error:', e.message);
-        res.status(502).json({ error: 'プロキシエラー', detail: e.message });
+        res.status(502).json({ error: 'プロキシエラーが発生しました。' });
     }
 };

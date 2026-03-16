@@ -51,11 +51,14 @@ async function doSearch(offset = 0) {
 
     const requiredTags = tagsInput ? tagsInput.split(',').map(t => t.trim()).filter(t => t) : [];
 
+    const sortByValue = Object.prototype.hasOwnProperty.call(SortParam, sortBy) ? SortParam[sortBy] : SortParam.FirstPublishTime;
+    const sortDirValue = Object.prototype.hasOwnProperty.call(SortDir, sortDir) ? SortDir[sortDir] : SortDir.Descending;
+
     const body = {
         count: count,
         offset: offset,
-        sortBy: SortParam[sortBy],
-        sortDirection: SortDir[sortDir],
+        sortBy: sortByValue,
+        sortDirection: sortDirValue,
         requiredTags: requiredTags,
         recordType: 'world'
     };
@@ -147,7 +150,7 @@ function renderResults(records, hasMoreResults) {
       <td>${hasBothMmc ? esc(mmc) : ''}</td>
       <td>${hasBothMmc ? esc(cat.main) : ''}</td>
       <td>${hasBothMmc ? esc(cat.sub) : ''}</td>
-      <td>${r.visits ?? '-'}</td>
+      <td>${esc(String(r.visits ?? '-'))}</td>
       <td>${published}</td>
       <td class="col-creation" style="${showCreation ? '' : 'display:none'}">${created}</td>
       <td>${updated}</td>
