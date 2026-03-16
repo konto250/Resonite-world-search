@@ -49,12 +49,7 @@ async function doSearch(offset = 0) {
     const moreBtn = document.getElementById('moreBtn');
     const status = document.getElementById('status');
 
-    if (!tagsInput) {
-        status.innerHTML = '<span class="error">タグを入力してください</span>';
-        return;
-    }
-
-    const requiredTags = tagsInput.split(',').map(t => t.trim()).filter(t => t);
+    const requiredTags = tagsInput ? tagsInput.split(',').map(t => t.trim()).filter(t => t) : [];
 
     const body = {
         count: count,
