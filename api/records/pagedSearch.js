@@ -1,11 +1,15 @@
 const API_BASE = 'https://api.resonite.com';
 
 module.exports = async (req, res) => {
+    if (req.method !== 'POST') {
+        return res.status(405).json({ error: 'Method Not Allowed' });
+    }
+
     const url = `${API_BASE}/records/pagedSearch`;
 
     try {
         const fetchOptions = {
-            method: req.method,
+            method: 'POST',
             headers: { 'Content-Type': 'application/json' },
         };
         if (req.method !== 'GET' && req.method !== 'HEAD') {
