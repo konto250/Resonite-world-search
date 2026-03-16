@@ -2,8 +2,6 @@ const API_BASE = 'https://api.resonite.com';
 
 module.exports = async (req, res) => {
     const url = `${API_BASE}/records/pagedSearch`;
-    console.log('[proxy] url:', url);
-    console.log('[proxy] method:', req.method);
 
     try {
         const fetchOptions = {

@@ -37,13 +37,15 @@ function classifyTags(tags) {
 }
 
 let currentRecords = [];
+let currentPage = 0;
 
-async function doSearch() {
+async function doSearch(page = 0) {
     const tagsInput = document.getElementById('tags').value.trim();
-    const count = parseInt(document.getElementById('count').value) || 100;
+    const count = parseInt(document.getElementById('count').value) || 25;
     const sortBy = document.getElementById('sortBy').value;
     const sortDir = document.getElementById('sortDir').value;
     const btn = document.getElementById('searchBtn');
+    const moreBtn = document.getElementById('moreBtn');
     const status = document.getElementById('status');
 
     if (!tagsInput) {
@@ -55,6 +57,7 @@ async function doSearch() {
 
     const body = {
         count: count,
+        page: page,
         sortBy: SortParam[sortBy],
         sortDirection: SortDir[sortDir],
         requiredTags: requiredTags,
@@ -62,9 +65,13 @@ async function doSearch() {
     };
 
     btn.disabled = true;
+    moreBtn.disabled = true;
     status.textContent = '検索中...';
-    document.getElementById('resultsHeader').style.display = 'none';
-    document.getElementById('resultsTable').style.display = 'none';
+    if (page === 0) {
+        document.getElementById('resultsHeader').style.display = 'none';
+        document.getElementById('resultsTable').style.display = 'none';
+        document.getElementById('resultsFooter').style.display = 'none';
+    }
 
     try {
         const resp = await fetch('/api/records/pagedSearch', {
@@ -78,21 +85,29 @@ async function doSearch() {
         }
 
         const data = await resp.json();
-        currentRecords = data.records || [];
-        renderResults(currentRecords, data.totalCount);
+        const newRecords = data.records || [];
+
+        if (page === 0) {
+            currentRecords = newRecords;
+        } else {
+            currentRecords = currentRecords.concat(newRecords);
+        }
+        currentPage = page;
+
+        renderResults(currentRecords, data.hasMoreResults);
         status.textContent = '';
     } catch (e) {
         status.innerHTML = `<span class="error">${e.message}</span>`;
         if (e instanceof TypeError && e.message === 'Failed to fetch') {
             status.innerHTML = '<span class="error">APIへの接続に失敗しました（CORSエラーの可能性があります）。<br>CORSを無効にしたブラウザか、プロキシ経由でお試しください。</span>';
         }
-        currentRecords = [];
     } finally {
         btn.disabled = false;
+        moreBtn.disabled = false;
     }
 }
 
-function renderResults(records, totalCount) {
+function renderResults(records, hasMoreResults) {
     const tbody = document.getElementById('resultsBody');
     tbody.innerHTML = '';
 
@@ -102,9 +117,9 @@ function renderResults(records, totalCount) {
     }
 
     document.getElementById('resultsHeader').style.display = 'flex';
-    const total = totalCount != null ? `全 ${totalCount} 件中 ` : '';
-    document.getElementById('resultCount').textContent = `${total}${records.length} 件を表示`;
+    document.getElementById('resultCount').textContent = `${records.length} 件を表示`;
     document.getElementById('resultsTable').style.display = 'table';
+    document.getElementById('resultsFooter').style.display = hasMoreResults ? 'block' : 'none';
 
     const showCreation = document.getElementById('showCreationDate').checked;
     document.querySelectorAll('.col-creation').forEach(el => el.style.display = showCreation ? '' : 'none');
