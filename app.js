@@ -39,8 +39,10 @@ function classifyTags(tags) {
 let currentRecords = [];
 let currentOffset = 0;
 let lastCount = 25;
+let isSearching = false;
 
 async function doSearch(offset = 0) {
+    if (isSearching) return;
     const tagsInput = document.getElementById('tags').value.trim();
     const count = parseInt(document.getElementById('count').value) || 25;
     const sortBy = document.getElementById('sortBy').value;
@@ -65,6 +67,7 @@ async function doSearch(offset = 0) {
 
     btn.disabled = true;
     moreBtn.disabled = true;
+    isSearching = true;
     status.textContent = '検索中...';
     if (offset === 0) {
         document.getElementById('resultsHeader').style.display = 'none';
@@ -109,6 +112,7 @@ async function doSearch(offset = 0) {
     } finally {
         btn.disabled = false;
         moreBtn.disabled = false;
+        isSearching = false;
     }
 }
 
@@ -175,6 +179,10 @@ function esc(str) {
 
 function downloadCSV() {
     if (currentRecords.length === 0) return;
+
+    const btns = document.querySelectorAll('.btn-csv');
+    btns.forEach(b => b.disabled = true);
+    setTimeout(() => btns.forEach(b => b.disabled = false), 2000);
 
     const showCreation = document.getElementById('showCreationDate').checked;
     const header = ['訪問済？', '投票候補', '名前', 'オーナー', 'MMCエントリー', 'メインカテゴリ', 'サブカテゴリ', 'URI', 'ブラウザURL', '公開日'];
