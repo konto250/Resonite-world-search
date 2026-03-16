@@ -97,9 +97,14 @@ async function doSearch(offset = 0) {
         renderResults(currentRecords, data.hasMoreResults);
         status.textContent = '';
     } catch (e) {
-        status.innerHTML = `<span class="error">${e.message}</span>`;
         if (e instanceof TypeError && e.message === 'Failed to fetch') {
             status.innerHTML = '<span class="error">APIへの接続に失敗しました（CORSエラーの可能性があります）。<br>CORSを無効にしたブラウザか、プロキシ経由でお試しください。</span>';
+        } else {
+            const span = document.createElement('span');
+            span.className = 'error';
+            span.textContent = e.message;
+            status.innerHTML = '';
+            status.appendChild(span);
         }
     } finally {
         btn.disabled = false;
@@ -155,7 +160,7 @@ function renderResults(records, hasMoreResults) {
       <td class="col-creation" style="${showCreation ? '' : 'display:none'}">${created}</td>
       <td>${updated}</td>
       <td title="${esc(tags)}">${esc(tags)}</td>
-      <td><a href="${uri}">${uri}</a></td>
+      <td><a href="${esc(uri)}">${esc(uri)}</a></td>
     `;
         tbody.appendChild(tr);
     }
