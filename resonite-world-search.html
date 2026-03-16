@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resonite ワールド検索</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #1a1a2e;
+      color: #e0e0e0;
+      min-height: 100vh;
+      padding: 24px;
+    }
+    h1 {
+      text-align: center;
+      color: #00d4ff;
+      margin-bottom: 24px;
+    }
+    .search-box {
+      max-width: 700px;
+      margin: 0 auto 24px;
+      background: #16213e;
+      padding: 20px;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    label { font-size: 14px; min-width: 80px; }
+    input, select {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid #333;
+      border-radius: 6px;
+      background: #0f3460;
+      color: #e0e0e0;
+      font-size: 14px;
+    }
+    input::placeholder { color: #888; }
+    button {
+      padding: 10px 24px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: bold;
+    }
+    .btn-search {
+      background: #00d4ff;
+      color: #1a1a2e;
+    }
+    .btn-search:hover { background: #00b8d9; }
+    .btn-search:disabled { background: #555; cursor: not-allowed; }
+    .btn-csv {
+      background: #e94560;
+      color: #fff;
+    }
+    .btn-csv:hover { background: #c73e54; }
+    .status {
+      text-align: center;
+      margin-bottom: 12px;
+      font-size: 14px;
+      color: #aaa;
+    }
+    .error { color: #e94560; }
+    .results-header {
+      max-width: 1200px;
+      margin: 0 auto 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    table {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      border-collapse: collapse;
+      background: #16213e;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    th {
+      background: #0f3460;
+      padding: 10px 12px;
+      text-align: left;
+      font-size: 13px;
+      color: #00d4ff;
+      position: sticky;
+      top: 0;
+    }
+    td {
+      padding: 8px 12px;
+      border-bottom: 1px solid #1a1a2e;
+      font-size: 13px;
+      max-width: 300px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    tr:hover td { background: #1a2744; }
+    a { color: #00d4ff; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .thumb {
+      width: 80px;
+      height: 45px;
+      object-fit: cover;
+      border-radius: 4px;
+      background: #333;
+    }
+  </style>
+</head>
+<body>
+  <h1>Resonite ワールド検索</h1>
+
+  <div class="search-box">
+    <div class="row">
+      <label>タグ</label>
+      <input type="text" id="tags" value="mmc26" placeholder="タグをカンマ区切りで入力 (例: japan,game)" />
+    </div>
+    <div class="row">
+      <label>件数上限</label>
+      <input type="number" id="count" value="200" min="1" max="10000" style="max-width:120px" />
+      <label>ソート</label>
+      <select id="sortBy">
+        <option value="TotalVisits">訪問数</option>
+        <option value="CreationDate">作成日</option>
+        <option value="LastUpdateDate">更新日</option>
+        <option value="FirstPublishTime" selected>公開日</option>
+        <option value="Name">名前</option>
+        <option value="Random">ランダム</option>
+      </select>
+      <select id="sortDir">
+        <option value="Descending" selected>降順</option>
+        <option value="Ascending">昇順</option>
+      </select>
+    </div>
+    <div class="row">
+      <label style="min-width:auto"><input type="checkbox" id="showCreationDate" /> 作成日を表示/CSV出力</label>
+    </div>
+    <div class="row" style="justify-content:center">
+      <button class="btn-search" id="searchBtn" onclick="doSearch()">検索</button>
+    </div>
+  </div>
+
+  <div class="status" id="status"></div>
+
+  <div class="results-header" id="resultsHeader" style="display:none">
+    <span id="resultCount"></span>
+    <button class="btn-csv" onclick="downloadCSV()">CSVダウンロード</button>
+  </div>
+
+  <table id="resultsTable" style="display:none">
+    <thead>
+      <tr>
+        <th>リンク</th>
+        <th>ワールド名</th>
+        <th>オーナー</th>
+        <th>メインカテゴリ</th>
+        <th>サブカテゴリ</th>
+        <th>訪問数</th>
+        <th>公開日</th>
+        <th class="col-creation" style="display:none">作成日</th>
+        <th>更新日</th>
+        <th>タグ</th>
+        <th>URI</th>
+      </tr>
+    </thead>
+    <tbody id="resultsBody"></tbody>
+  </table>
+
+  <script>
+    // ソートパラメータのenum値マッピング
+    const SortParam = {
+      CreationDate: 0, LastUpdateDate: 1, FirstPublishTime: 2,
+      TotalVisits: 3, Name: 4, Random: 5
+    };
+    const SortDir = { Ascending: 0, Descending: 1 };
+
+    // タグからメインカテゴリ・サブカテゴリを判定
+    const TAG_CATEGORIES = [
+      { main: 'world',  sub: 'social',  tags: ['world', 'social'] },
+      { main: 'world',  sub: 'game',    tags: ['world', 'game'] },
+      { main: 'world',  sub: 'misc',    tags: ['world', 'misc'] },
+      { main: 'avatar', sub: 'avatars', tags: ['avatar', 'avatars'] },
+      { main: 'avatar', sub: 'misc',    tags: ['avatar', 'misc'] },
+      { main: 'other',  sub: 'tau',     tags: ['other', 'tau'] },
+      { main: 'other',  sub: 'misc',    tags: ['other', 'misc'] },
+      { main: 'art',       sub: '', tags: ['art'] },
+      { main: 'esd',       sub: '', tags: ['esd'] },
+      { main: 'meme',      sub: '', tags: ['meme'] },
+      { main: 'narrative', sub: '', tags: ['narrative'] },
+    ];
+
+    function stripRichText(str) {
+      if (!str) return '';
+      return str.replace(/<\/?[^>]+>/g, '').replace(/[\r\n]+/g, ' ').trim();
+    }
+
+    function classifyTags(tags) {
+      if (!tags || tags.length === 0) return { main: '', sub: '' };
+      const lowerTags = tags.map(t => t.toLowerCase());
+      for (const cat of TAG_CATEGORIES) {
+        if (cat.tags.every(t => lowerTags.includes(t))) {
+          return { main: cat.main, sub: cat.sub };
+        }
+      }
+      return { main: '', sub: '' };
+    }
+
+    let currentRecords = [];
+
+    async function doSearch() {
+      const tagsInput = document.getElementById('tags').value.trim();
+      const count = parseInt(document.getElementById('count').value) || 100;
+      const sortBy = document.getElementById('sortBy').value;
+      const sortDir = document.getElementById('sortDir').value;
+      const btn = document.getElementById('searchBtn');
+      const status = document.getElementById('status');
+
+      if (!tagsInput) {
+        status.innerHTML = '<span class="error">タグを入力してください</span>';
+        return;
+      }
+
+      const requiredTags = tagsInput.split(',').map(t => t.trim()).filter(t => t);
+
+      const body = {
+        count: count,
+        sortBy: SortParam[sortBy],
+        sortDirection: SortDir[sortDir],
+        requiredTags: requiredTags,
+        recordType: 'world'
+      };
+
+      btn.disabled = true;
+      status.textContent = '検索中...';
+      document.getElementById('resultsHeader').style.display = 'none';
+      document.getElementById('resultsTable').style.display = 'none';
+
+      try {
+        const resp = await fetch('/api/records/pagedSearch', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+
+        if (!resp.ok) {
+          throw new Error(`API エラー: ${resp.status} ${resp.statusText}`);
+        }
+
+        const data = await resp.json();
+        currentRecords = data.records || [];
+        renderResults(currentRecords);
+        status.textContent = '';
+      } catch (e) {
+        status.innerHTML = `<span class="error">${e.message}</span>`;
+        // CORSエラーの場合の補足
+        if (e instanceof TypeError && e.message === 'Failed to fetch') {
+          status.innerHTML = '<span class="error">APIへの接続に失敗しました（CORSエラーの可能性があります）。<br>CORSを無効にしたブラウザか、プロキシ経由でお試しください。</span>';
+        }
+        currentRecords = [];
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    function renderResults(records) {
+      const tbody = document.getElementById('resultsBody');
+      tbody.innerHTML = '';
+
+      if (records.length === 0) {
+        document.getElementById('status').textContent = '結果が見つかりませんでした';
+        return;
+      }
+
+      document.getElementById('resultsHeader').style.display = 'flex';
+      document.getElementById('resultCount').textContent = `${records.length} 件のワールド`;
+      document.getElementById('resultsTable').style.display = 'table';
+
+      const showCreation = document.getElementById('showCreationDate').checked;
+      document.querySelectorAll('.col-creation').forEach(el => el.style.display = showCreation ? '' : 'none');
+
+      for (const r of records) {
+        const tr = document.createElement('tr');
+        const tags = (r.tags || []).join(', ');
+        const cat = classifyTags(r.tags);
+        const uri = `resrec:///${r.ownerId}/${r.id}`;
+        const webUrl = `https://go.resonite.com/record/${r.ownerId}/${r.id}`;
+        const published = r.firstPublishTime ? new Date(r.firstPublishTime).toLocaleDateString('ja-JP') : '-';
+        const created = r.creationTime ? new Date(r.creationTime).toLocaleDateString('ja-JP') : '-';
+        const updated = r.lastModificationTime ? new Date(r.lastModificationTime).toLocaleDateString('ja-JP') : '-';
+
+        tr.innerHTML = `
+          <td><a href="${esc(webUrl)}" target="_blank">開く</a></td>
+          <td title="${esc(stripRichText(r.name))}">${esc(stripRichText(r.name))}</td>
+          <td title="${esc(r.ownerName)}">${esc(r.ownerName)}</td>
+          <td>${esc(cat.main)}</td>
+          <td>${esc(cat.sub)}</td>
+          <td>${r.visits ?? '-'}</td>
+          <td>${published}</td>
+          <td class="col-creation" style="${showCreation ? '' : 'display:none'}">${created}</td>
+          <td>${updated}</td>
+          <td title="${esc(tags)}">${esc(tags)}</td>
+          <td><a href="${uri}">${uri}</a></td>
+        `;
+        tbody.appendChild(tr);
+      }
+    }
+
+    function esc(str) {
+      if (!str) return '';
+      const d = document.createElement('div');
+      d.textContent = str;
+      return d.innerHTML;
+    }
+
+    function downloadCSV() {
+      if (currentRecords.length === 0) return;
+
+      const showCreation = document.getElementById('showCreationDate').checked;
+      const header = ['訪問済？', '投票候補', '名前', 'オーナー', 'メインカテゴリ', 'サブカテゴリ', 'URI', 'ブラウザURL', '公開日'];
+      if (showCreation) header.push('作成日');
+      header.push('更新日', 'タグ');
+      const rows = currentRecords.map(r => {
+        const uri = `resrec:///${r.ownerId}/${r.id}`;
+        const webUrl = `https://go.resonite.com/record/${r.ownerId}/${r.id}`;
+        const cat = classifyTags(r.tags);
+        const cols = [
+          '',
+          '',
+          csvField(stripRichText(r.name)),
+          csvField(r.ownerName),
+          csvField(cat.main),
+          csvField(cat.sub),
+          csvField(uri),
+          csvField(webUrl),
+          r.firstPublishTime || ''
+        ];
+        if (showCreation) cols.push(r.creationTime || '');
+        cols.push(r.lastModificationTime || '', csvField((r.tags || []).join(';')));
+        return cols.join(',');
+      });
+
+      const bom = '\uFEFF';
+      const csv = bom + header.join(',') + '\n' + rows.join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `resonite_worlds_${new Date().toISOString().slice(0, 10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function csvField(val) {
+      if (val == null) return '';
+      const s = String(val);
+      if (s.includes(',') || s.includes('"') || s.includes('\n')) {
+        return '"' + s.replace(/"/g, '""') + '"';
+      }
+      return s;
+    }
+
+    // Enterキーで検索
+    document.getElementById('tags').addEventListener('keydown', e => {
+      if (e.key === 'Enter') doSearch();
+    });
+  </script>
+</body>
+</html>
