@@ -44,8 +44,8 @@
   <div class="status" id="status"></div>
 
   <div class="results-header" id="resultsHeader" style="display:none">
-    <span id="resultCount"></span>
     <button class="btn-csv" onclick="downloadCSV()">CSVダウンロード</button>
+    <span id="resultCount"></span>
   </div>
 
   <table id="resultsTable" style="display:none">
@@ -68,7 +68,9 @@
   </table>
 
   <div class="results-footer" id="resultsFooter" style="display:none">
-    <button class="btn-more" id="moreBtn" onclick="doSearch(currentOffset + lastCount)">さらに読み込む</button>    <button class="btn-csv" onclick="downloadCSV()">CSVダウンロード</button>  </div>
+    <button class="btn-csv" onclick="downloadCSV()">CSVダウンロード</button>
+    <button class="btn-more" id="moreBtn" onclick="doSearch(currentOffset + lastCount)">さらに読み込む</button>
+  </div>
 
   <script src="app.js"></script>
 </body>

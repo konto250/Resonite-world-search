@@ -122,7 +122,8 @@ function renderResults(records, hasMoreResults) {
     document.getElementById('resultsHeader').style.display = 'flex';
     document.getElementById('resultCount').textContent = `${records.length} 件を表示`;
     document.getElementById('resultsTable').style.display = 'table';
-    document.getElementById('resultsFooter').style.display = hasMoreResults ? 'block' : 'none';
+    document.getElementById('resultsFooter').style.display = 'flex';
+    document.getElementById('moreBtn').style.display = hasMoreResults ? '' : 'none';
 
     const showCreation = document.getElementById('showCreationDate').checked;
     document.querySelectorAll('.col-creation').forEach(el => el.style.display = showCreation ? '' : 'none');
