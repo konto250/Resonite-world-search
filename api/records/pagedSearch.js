@@ -1,8 +1,7 @@
 const API_BASE = 'https://api.resonite.com';
 
 module.exports = async (req, res) => {
-    // req.url は /api/records/pagedSearch?... の形で来るのでそのまま使う
-    const url = `${API_BASE}${req.url.replace(/^\/api/, '')}`;
+    const url = `${API_BASE}/records/pagedSearch`;
     console.log('[proxy] url:', url);
     console.log('[proxy] method:', req.method);
 
