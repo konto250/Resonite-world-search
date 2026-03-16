@@ -1,3 +1,8 @@
+// gtag が未定義の場合のフォールバック
+if (typeof gtag === 'undefined') {
+    window.gtag = function () { };
+}
+
 // ソートパラメータのenum値マッピング
 const SortParam = {
     CreationDate: 0, LastUpdateDate: 1, FirstPublishTime: 2,
