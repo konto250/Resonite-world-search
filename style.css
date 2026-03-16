@@ -185,3 +185,11 @@ a:hover {
     opacity: 0.5;
     cursor: not-allowed;
 }
+
+.site-footer {
+    text-align: center;
+    margin-top: 40px;
+    padding: 16px;
+    font-size: 13px;
+    color: #888;
+}
