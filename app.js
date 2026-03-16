@@ -236,3 +236,7 @@ function csvField(val) {
 document.getElementById('tags').addEventListener('keydown', e => {
     if (e.key === 'Enter') doSearch();
 });
+document.getElementById('searchBtn').addEventListener('click', () => doSearch());
+document.getElementById('csvBtnHeader').addEventListener('click', downloadCSV);
+document.getElementById('csvBtnFooter').addEventListener('click', downloadCSV);
+document.getElementById('moreBtn').addEventListener('click', () => doSearch(currentOffset + lastCount));

@@ -37,14 +37,14 @@
       <label style="min-width:auto"><input type="checkbox" id="showCreationDate" /> 作成日を表示/CSV出力</label>
     </div>
     <div class="row" style="justify-content:center">
-      <button class="btn-search" id="searchBtn" onclick="doSearch()">検索</button>
+      <button class="btn-search" id="searchBtn">検索</button>
     </div>
   </div>
 
   <div class="status" id="status"></div>
 
   <div class="results-header" id="resultsHeader" style="display:none">
-    <button class="btn-csv" onclick="downloadCSV()">CSVダウンロード</button>
+    <button class="btn-csv" id="csvBtnHeader">CSVダウンロード</button>
     <span id="resultCount"></span>
   </div>
 
@@ -68,8 +68,8 @@
   </table>
 
   <div class="results-footer" id="resultsFooter" style="display:none">
-    <button class="btn-csv" onclick="downloadCSV()">CSVダウンロード</button>
-    <button class="btn-more" id="moreBtn" onclick="doSearch(currentOffset + lastCount)">さらに読み込む</button>
+    <button class="btn-csv" id="csvBtnFooter">CSVダウンロード</button>
+    <button class="btn-more" id="moreBtn">さらに読み込む</button>
   </div>
 
   <footer class="site-footer">
