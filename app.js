@@ -75,12 +75,6 @@ async function doSearch(offset = 0) {
         document.getElementById('resultsFooter').style.display = 'none';
     }
 
-    if (offset === 0) {
-        window.va?.('event', { name: 'search', data: { tags: tagsInput, sortBy, sortDir } });
-    } else {
-        window.va?.('event', { name: 'load_more', data: { tags: tagsInput, offset } });
-    }
-
     try {
         const resp = await fetch('/api/records/pagedSearch', {
             method: 'POST',
@@ -186,7 +180,6 @@ function esc(str) {
 
 function downloadCSV() {
     if (currentRecords.length === 0) return;
-    window.va?.('event', { name: 'csv_download', data: { count: currentRecords.length } });
 
     const btns = document.querySelectorAll('.btn-csv');
     btns.forEach(b => b.disabled = true);
