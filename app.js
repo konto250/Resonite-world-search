@@ -133,6 +133,7 @@ function renderResults(records, hasMoreResults) {
 
     document.getElementById('resultsHeader').style.display = 'flex';
     document.getElementById('resultCount').textContent = `${records.length} 件を表示`;
+    document.getElementById('resultCountFooter').textContent = `${records.length} 件を表示`;
     document.getElementById('resultsTable').style.display = 'table';
     document.getElementById('resultsFooter').style.display = 'flex';
     document.getElementById('moreBtn').style.display = hasMoreResults ? '' : 'none';
