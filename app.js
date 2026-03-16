@@ -132,6 +132,7 @@ function renderResults(records, hasMoreResults) {
         const tags = (r.tags || []).join(', ');
         const cat = classifyTags(r.tags);
         const mmc = getMmcTag(r.tags);
+        const hasBothMmc = mmc !== '' && (cat.main !== '' || cat.sub !== '');
         const uri = `resrec:///${r.ownerId}/${r.id}`;
         const webUrl = `https://go.resonite.com/record/${r.ownerId}/${r.id}`;
         const published = r.firstPublishTime ? new Date(r.firstPublishTime).toLocaleDateString('ja-JP') : '-';
@@ -142,9 +143,9 @@ function renderResults(records, hasMoreResults) {
       <td><a href="${esc(webUrl)}" target="_blank">🌐</a></td>
       <td title="${esc(stripRichText(r.name))}">${esc(stripRichText(r.name))}</td>
       <td title="${esc(r.ownerName)}">${esc(r.ownerName)}</td>
-      <td>${esc(mmc)}</td>
-      <td>${esc(cat.main)}</td>
-      <td>${esc(cat.sub)}</td>
+      <td>${hasBothMmc ? esc(mmc) : ''}</td>
+      <td>${hasBothMmc ? esc(cat.main) : ''}</td>
+      <td>${hasBothMmc ? esc(cat.sub) : ''}</td>
       <td>${r.visits ?? '-'}</td>
       <td>${published}</td>
       <td class="col-creation" style="${showCreation ? '' : 'display:none'}">${created}</td>
