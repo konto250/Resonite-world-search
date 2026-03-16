@@ -9,6 +9,7 @@ module.exports = async (req, res) => {
     const { path: _, ...otherQuery } = req.query;
     const qs = new URLSearchParams(otherQuery).toString();
     const url = `${API_BASE}/${apiPath}${qs ? `?${qs}` : ''}`;
+    console.log('Proxying to:', req.method, url); // ← 追加
 
     try {
         const fetchOptions = {
