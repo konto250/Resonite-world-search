@@ -37,9 +37,10 @@ function classifyTags(tags) {
 }
 
 let currentRecords = [];
-let currentPage = 0;
+let currentOffset = 0;
+let lastCount = 25;
 
-async function doSearch(page = 0) {
+async function doSearch(offset = 0) {
     const tagsInput = document.getElementById('tags').value.trim();
     const count = parseInt(document.getElementById('count').value) || 25;
     const sortBy = document.getElementById('sortBy').value;
@@ -57,7 +58,7 @@ async function doSearch(page = 0) {
 
     const body = {
         count: count,
-        page: page,
+        offset: offset,
         sortBy: SortParam[sortBy],
         sortDirection: SortDir[sortDir],
         requiredTags: requiredTags,
@@ -67,7 +68,7 @@ async function doSearch(page = 0) {
     btn.disabled = true;
     moreBtn.disabled = true;
     status.textContent = '検索中...';
-    if (page === 0) {
+    if (offset === 0) {
         document.getElementById('resultsHeader').style.display = 'none';
         document.getElementById('resultsTable').style.display = 'none';
         document.getElementById('resultsFooter').style.display = 'none';
@@ -87,12 +88,13 @@ async function doSearch(page = 0) {
         const data = await resp.json();
         const newRecords = data.records || [];
 
-        if (page === 0) {
+        if (offset === 0) {
             currentRecords = newRecords;
         } else {
             currentRecords = currentRecords.concat(newRecords);
         }
-        currentPage = page;
+        currentOffset = offset;
+        lastCount = count;
 
         renderResults(currentRecords, data.hasMoreResults);
         status.textContent = '';
