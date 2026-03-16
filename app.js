@@ -109,6 +109,12 @@ async function doSearch(offset = 0) {
     }
 }
 
+function getMmcTag(tags) {
+    if (!tags) return '';
+    const found = tags.find(t => /^mmc\d+$/i.test(t));
+    return found ? found.toLowerCase() : '';
+}
+
 function renderResults(records, hasMoreResults) {
     const tbody = document.getElementById('resultsBody');
     tbody.innerHTML = '';
@@ -130,6 +136,7 @@ function renderResults(records, hasMoreResults) {
         const tr = document.createElement('tr');
         const tags = (r.tags || []).join(', ');
         const cat = classifyTags(r.tags);
+        const mmc = getMmcTag(r.tags);
         const uri = `resrec:///${r.ownerId}/${r.id}`;
         const webUrl = `https://go.resonite.com/record/${r.ownerId}/${r.id}`;
         const published = r.firstPublishTime ? new Date(r.firstPublishTime).toLocaleDateString('ja-JP') : '-';
@@ -140,6 +147,7 @@ function renderResults(records, hasMoreResults) {
       <td><a href="${esc(webUrl)}" target="_blank">開く</a></td>
       <td title="${esc(stripRichText(r.name))}">${esc(stripRichText(r.name))}</td>
       <td title="${esc(r.ownerName)}">${esc(r.ownerName)}</td>
+      <td>${esc(mmc)}</td>
       <td>${esc(cat.main)}</td>
       <td>${esc(cat.sub)}</td>
       <td>${r.visits ?? '-'}</td>
@@ -164,7 +172,7 @@ function downloadCSV() {
     if (currentRecords.length === 0) return;
 
     const showCreation = document.getElementById('showCreationDate').checked;
-    const header = ['訪問済？', '投票候補', '名前', 'オーナー', 'メインカテゴリ', 'サブカテゴリ', 'URI', 'ブラウザURL', '公開日'];
+    const header = ['訪問済？', '投票候補', '名前', 'オーナー', 'MMCエントリー', 'メインカテゴリ', 'サブカテゴリ', 'URI', 'ブラウザURL', '公開日'];
     if (showCreation) header.push('作成日');
     header.push('更新日', 'タグ');
     const rows = currentRecords.map(r => {
@@ -176,6 +184,7 @@ function downloadCSV() {
             '',
             csvField(stripRichText(r.name)),
             csvField(r.ownerName),
+            csvField(getMmcTag(r.tags)),
             csvField(cat.main),
             csvField(cat.sub),
             csvField(uri),
