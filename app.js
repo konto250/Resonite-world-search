@@ -99,6 +99,11 @@ async function doSearch(offset = 0) {
 
         renderResults(currentRecords, data.hasMoreResults);
         status.textContent = '';
+        if (offset === 0) {
+            gtag('event', 'search', { tags: tagsInput, sort_by: sortBy, sort_dir: sortDir });
+        } else {
+            gtag('event', 'load_more', { tags: tagsInput, offset });
+        }
     } catch (e) {
         if (e instanceof TypeError && e.message === 'Failed to fetch') {
             status.innerHTML = '<span class="error">APIへの接続に失敗しました（CORSエラーの可能性があります）。<br>CORSを無効にしたブラウザか、プロキシ経由でお試しください。</span>';
@@ -180,6 +185,7 @@ function esc(str) {
 
 function downloadCSV() {
     if (currentRecords.length === 0) return;
+    gtag('event', 'csv_download', { count: currentRecords.length });
 
     const btns = document.querySelectorAll('.btn-csv');
     btns.forEach(b => b.disabled = true);
