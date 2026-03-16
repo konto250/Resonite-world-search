@@ -1,16 +1,10 @@
 const API_BASE = 'https://api.resonite.com';
 
 module.exports = async (req, res) => {
-    // Vercelがcatch-allセグメントを配列で渡す
-    const segments = req.query.path;
-    const apiPath = Array.isArray(segments) ? segments.join('/') : (segments || '');
-
-    // pathパラメータ以外のクエリ文字列を引き継ぐ
-    const { path: _, ...otherQuery } = req.query;
-    const qs = new URLSearchParams(otherQuery).toString();
-    const url = `${API_BASE}/${apiPath}${qs ? `?${qs}` : ''}`;
-    console.log('[proxy] url:', url);          // ← 追加
-    console.log('[proxy] method:', req.method); // ← 追加
+    // req.url は /api/records/pagedSearch?... の形で来るのでそのまま使う
+    const url = `${API_BASE}${req.url.replace(/^\/api/, '')}`;
+    console.log('[proxy] url:', url);
+    console.log('[proxy] method:', req.method);
 
     try {
         const fetchOptions = {
