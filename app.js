@@ -139,7 +139,7 @@ function renderResults(records, hasMoreResults) {
         const updated = r.lastModificationTime ? new Date(r.lastModificationTime).toLocaleDateString('ja-JP') : '-';
 
         tr.innerHTML = `
-      <td><a href="${esc(webUrl)}" target="_blank">開く</a></td>
+      <td><a href="${esc(webUrl)}" target="_blank">🌐</a></td>
       <td title="${esc(stripRichText(r.name))}">${esc(stripRichText(r.name))}</td>
       <td title="${esc(r.ownerName)}">${esc(r.ownerName)}</td>
       <td>${esc(mmc)}</td>
