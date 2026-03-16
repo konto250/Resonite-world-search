@@ -79,7 +79,7 @@ async function doSearch() {
 
         const data = await resp.json();
         currentRecords = data.records || [];
-        renderResults(currentRecords);
+        renderResults(currentRecords, data.totalCount);
         status.textContent = '';
     } catch (e) {
         status.innerHTML = `<span class="error">${e.message}</span>`;
@@ -92,7 +92,7 @@ async function doSearch() {
     }
 }
 
-function renderResults(records) {
+function renderResults(records, totalCount) {
     const tbody = document.getElementById('resultsBody');
     tbody.innerHTML = '';
 
@@ -102,7 +102,8 @@ function renderResults(records) {
     }
 
     document.getElementById('resultsHeader').style.display = 'flex';
-    document.getElementById('resultCount').textContent = `${records.length} 件のワールド`;
+    const total = totalCount != null ? `全 ${totalCount} 件中 ` : '';
+    document.getElementById('resultCount').textContent = `${total}${records.length} 件を表示`;
     document.getElementById('resultsTable').style.display = 'table';
 
     const showCreation = document.getElementById('showCreationDate').checked;
