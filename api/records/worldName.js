@@ -69,8 +69,8 @@ module.exports = async (req, res) => {
         if (upstreamRes.status !== 200) {
             return res
                 .status(upstreamRes.status)
-                .setHeader('Content-Type', upstreamRes.headers.get('content-type') || 'text/plain; charset=utf-8')
-                .send(responseBody);
+                .setHeader('Content-Type', 'text/plain; charset=utf-8')
+                .send(String(upstreamRes.status));
         }
 
         const title = extractMainH1(responseBody);
@@ -78,7 +78,10 @@ module.exports = async (req, res) => {
             return res.status(404).json({ error: 'main/h1 が見つかりませんでした。' });
         }
 
-        return res.status(200).json({ worldName: title });
+        return res
+            .status(200)
+            .setHeader('Content-Type', 'text/plain; charset=utf-8')
+            .send(title);
     } catch (e) {
         console.error('World name fetch error:', e.message);
         return res.status(502).json({ error: 'ワールドページの取得に失敗しました。' });
